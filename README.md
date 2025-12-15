@@ -1,5 +1,3 @@
-# qa
-
 To install dependencies:
 
 ```bash
