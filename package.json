@@ -1,0 +1,14 @@
+{
+  "name": "qa",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "cypress": "^15.6.0",
+    "cypress-file-upload": "^5.0.8",
+    "dotenv": "^17.2.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
