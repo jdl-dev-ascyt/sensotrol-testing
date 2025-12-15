@@ -1,0 +1,20 @@
+name: Cypress E2E
+
+on:
+  repository_dispatch:
+    types: [ run-e2e ]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests
+        run: npx cypress run --browser chrome
+        env:
+          BASE_URL: ${{ github.event.client_payload.baseUrl }}

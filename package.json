@@ -2,6 +2,9 @@
   "name": "qa",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "test": "npx cypress run --browser chrome"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "cypress": "^15.6.0",

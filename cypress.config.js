@@ -1,7 +1,7 @@
 const { defineConfig } = require('cypress');
 require('dotenv').config();
 
-const protocol = (process.env.APP_ENV === 'production') ? 'https' : 'http';
+// const protocol = (process.env.APP_ENV === 'production') ? 'https' : 'http';
 
 module.exports = defineConfig({
   screenshotOnRunFailure: false, 
@@ -10,7 +10,7 @@ module.exports = defineConfig({
       if (process.env.APP_ENV === 'production') throw new Error('The environment is running in production; it is not possible to run tests in production..');
       return config;
     },
-    baseUrl: `${protocol}://${process.env.ADMIN_SUBDOMAIN}:${process.env.APP_S_PORT}`,
+    baseUrl: process.env.BASE_URL,
     defaultCommandTimeout: 30000,  
   },
 });
