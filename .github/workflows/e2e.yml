@@ -1,12 +1,14 @@
-name: Cypress E2E
+name: Remote Cypress Run
 
 on:
   repository_dispatch:
-    types: [ run-e2e ]
+    types: [run-e2e]
 
 jobs:
-  e2e:
+  run-tests:
+    name: Run Cypress E2E against staging deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v4
@@ -15,6 +17,40 @@ jobs:
         run: npm ci
 
       - name: Run Cypress tests
-        run: npx cypress run --browser chrome
+        id: cypress
         env:
           BASE_URL: ${{ github.event.client_payload.baseUrl }}
+        run: |
+          echo "🏁 Running Cypress against ${BASE_URL}"
+          npx cypress run --config baseUrl=$BASE_URL --browser chrome
+
+      - name: Report result to PR (Success)
+        if: success()
+        run: |
+          PR_NUMBER=${{ github.event.client_payload.pr_number }}
+          REPO=${{ github.event.client_payload.pr_repo }}
+          DEPLOY_URL=${{ github.event.client_payload.baseUrl }}
+
+          echo "✅ Tests passed. Commenting on PR #${PR_NUMBER} in ${REPO}."
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments \
+            -d "{\"body\": \"✅ **Pruebas E2E completadas correctamente.**\n\nDeploy verificado: ${DEPLOY_URL}\"}"
+
+      - name: Report result to PR (Failure)
+        if: failure()
+        run: |
+          PR_NUMBER=${{ github.event.client_payload.pr_number }}
+          REPO=${{ github.event.client_payload.pr_repo }}
+          DEPLOY_URL=${{ github.event.client_payload.baseUrl }}
+
+          echo "❌ Tests failed. Commenting on PR #${PR_NUMBER} in ${REPO}."
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${REPO}/issues/${PR_NUMBER}/comments \
+            -d "{\"body\": \"❌ **Pruebas E2E fallidas.**\n\nRevisa los logs del workflow en [sensotrol-testing](https://github.com/jdl-dev-ascyt/sensotrol-testing/actions) y el deploy: ${DEPLOY_URL}\"}"
+
